@@ -188,15 +188,19 @@ impl Timestamp {
 }
 
 #[cfg(feature = "std")]
-impl std::convert::TryFrom<std::time::SystemTime> for Timestamp {
+impl TryFrom<std::time::SystemTime> for Timestamp {
     type Error = crate::Error;
 
     /// Perform the conversion.
-    /// 
+    ///
     /// This method will fail if the system time is earlier than the Unix Epoch.
     /// On some platforms it may panic instead.
     fn try_from(st: std::time::SystemTime) -> Result<Self, Self::Error> {
-        let dur = st.duration_since(std::time::UNIX_EPOCH).map_err(|_| crate::Error(crate::error::ErrorKind::InvalidSystemTime("unable to convert the system tie into a Unix timestamp")))?;
+        let dur = st.duration_since(std::time::UNIX_EPOCH).map_err(|_| {
+            crate::Error(crate::error::ErrorKind::InvalidSystemTime(
+                "unable to convert the system tie into a Unix timestamp",
+            ))
+        })?;
 
         Ok(Self::from_unix_time(
             dur.as_secs(),
@@ -1219,10 +1223,7 @@ mod tests {
 /// Tests for conversion between `std::time::SystemTime` and `Timestamp`.
 #[cfg(all(test, feature = "std", not(miri)))]
 mod test_conversion {
-    use std::{
-        convert::{TryFrom, TryInto},
-        time::{Duration, SystemTime},
-    };
+    use std::time::{Duration, SystemTime};
 
     use super::Timestamp;
 

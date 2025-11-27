@@ -279,8 +279,6 @@ pub mod __macro_support {
     pub use crate::std::result::Result::{Err, Ok};
 }
 
-use crate::std::convert;
-
 pub use crate::{builder::Builder, error::Error, non_nil::NonNilUuid};
 
 /// A 128-bit (16 byte) buffer containing the UUID.
@@ -642,7 +640,7 @@ impl Uuid {
 
         let d3 = (bytes[6] as u16) << 8 | (bytes[7] as u16);
 
-        let d4: &[u8; 8] = convert::TryInto::try_into(&bytes[8..16]).unwrap();
+        let d4: &[u8; 8] = bytes[8..16].try_into().unwrap();
         (d1, d2, d3, d4)
     }
 
@@ -683,7 +681,7 @@ impl Uuid {
 
         let d3 = (self.as_bytes()[6] as u16) | (self.as_bytes()[7] as u16) << 8;
 
-        let d4: &[u8; 8] = convert::TryInto::try_into(&self.as_bytes()[8..16]).unwrap();
+        let d4: &[u8; 8] = self.as_bytes()[8..16].try_into().unwrap();
         (d1, d2, d3, d4)
     }
 
@@ -973,7 +971,7 @@ impl From<Uuid> for std::vec::Vec<u8> {
 }
 
 #[cfg(feature = "std")]
-impl std::convert::TryFrom<std::vec::Vec<u8>> for Uuid {
+impl TryFrom<std::vec::Vec<u8>> for Uuid {
     type Error = Error;
 
     fn try_from(value: std::vec::Vec<u8>) -> Result<Self, Self::Error> {
@@ -1675,12 +1673,10 @@ mod tests {
         wasm_bindgen_test
     )]
     fn test_convert_vec() {
-        use crate::std::{convert::TryInto, vec::Vec};
-
         let u = new();
         let ub: &[u8] = u.as_ref();
 
-        let v: Vec<u8> = u.into();
+        let v: std::vec::Vec<u8> = u.into();
 
         assert_eq!(&v, ub);
 

@@ -10,7 +10,6 @@
 // except according to those terms.
 
 use crate::{
-    convert::TryFrom,
     error::*,
     fmt::{Braced, Hyphenated, Simple, Urn},
     non_nil::NonNilUuid,
